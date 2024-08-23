@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import * as XLSX from 'xlsx';
+import { ApisService } from '../apis.service';
 
 @Component({
   selector: 'app-upload-authors',
@@ -10,6 +11,9 @@ export class UploadAuthorsComponent {
 
   authorData: any[] = [];
   isValidData: boolean = false;
+  constructor(private _service: ApisService) { }
+
+
   onFileChange(event: any) {
     const target: DataTransfer = <DataTransfer>(event.target);
     if (target.files.length !== 1) throw new Error('Cannot use multiple files');
@@ -74,7 +78,8 @@ export class UploadAuthorsComponent {
   onUpload() {
     if (this.authorData.length) {
       console.log('Data ready for upload:', this.authorData);
-      alert('Data uploaded successfully!');
+      this._service.postAuthors(this.authorData).subscribe();
+      alert('Data uploaded successfully to database!');
     } else {
       alert('Please upload a valid Excel file.');
     }

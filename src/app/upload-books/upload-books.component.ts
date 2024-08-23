@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import * as XLSX from 'xlsx';
+import { ApisService } from '../apis.service';
 
 
 @Component({
@@ -10,6 +11,8 @@ import * as XLSX from 'xlsx';
 export class UploadBooksComponent {
 
   bookData: any[] = [];
+
+  constructor(private _service: ApisService) { }
 
   onFileChange(event: any) {
     const target: DataTransfer = <DataTransfer>(event.target);
@@ -59,14 +62,14 @@ export class UploadBooksComponent {
   }
 
   isValidISBN(isbn: string): boolean {
-    const isbnPattern = /^(97(8|9))?\d{9}(\d|X)$/;
-    return isbnPattern.test(isbn);
+    return isbn.length >= 10;
   }
 
   onUpload() {
     if (this.bookData.length) {
       console.log('Data ready for upload:', this.bookData);
-      alert('Data uploaded successfully!');
+      this._service.postBooks(this.bookData).subscribe();
+      alert('Data uploaded successfully to the database!');
     } else {
       alert('Please upload a valid Excel file.');
     }
