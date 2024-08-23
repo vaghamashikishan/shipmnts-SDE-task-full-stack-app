@@ -8,8 +8,8 @@ import * as XLSX from 'xlsx';
 })
 export class UploadAuthorsComponent {
 
-  bookData: any[] = [];
-
+  authorData: any[] = [];
+  isValidData: boolean = false;
   onFileChange(event: any) {
     const target: DataTransfer = <DataTransfer>(event.target);
     if (target.files.length !== 1) throw new Error('Cannot use multiple files');
@@ -24,27 +24,63 @@ export class UploadAuthorsComponent {
 
       const data = <any[][]>XLSX.utils.sheet_to_json(ws, { header: 1 });
 
-      this.bookData = data.slice(1).map(row => ({
-        authorName: row[0],
-        authorEmail: row[1],
-        authorDOB: this.convertDate(row[2]),
-      }));
-      console.log(data);
+      const errors: string[] = [];
 
+      this.authorData = data.slice(1).map((row, index) => {
+        const authorEmail = row[1];
+        const authorDOB = this.convertDate1(row[2]);
+
+        if (!this.isValidEmail(authorEmail)) {
+          errors.push(`Row ${index + 2}: Invalid email format (${authorEmail})`);
+        }
+
+        if (!this.isValidDate(authorDOB)) {
+          errors.push(`Row ${index + 2}: Invalid date of birth (${row[2]})`);
+        }
+
+        return {
+          authorName: row[0],
+          authorEmail: authorEmail,
+          authorDOB: authorDOB
+        };
+      });
+
+      if (errors.length > 0) {
+        this.authorData = [];
+        console.error('Validation Errors:', errors);
+        alert('Validation Errors:\n' + errors.join('\n'));
+      } else {
+        this.isValidData = true;
+        console.log('Valid data:', this.authorData);
+      }
     };
     reader.readAsBinaryString(target.files[0]);
   }
 
+  isValidEmail(email: string): boolean {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  }
+
+  isValidDate(date: string): boolean {
+    return !isNaN(Date.parse(date));
+  }
+
+  convertDate(excelDate: any): string {
+    return new Date(excelDate).toISOString().split('T')[0];
+  }
+
+
   onUpload() {
-    if (this.bookData.length) {
-      console.log('Data ready for upload:', this.bookData);
+    if (this.authorData.length) {
+      console.log('Data ready for upload:', this.authorData);
       alert('Data uploaded successfully!');
     } else {
       alert('Please upload a valid Excel file.');
     }
   }
 
-  convertDate(dateString: string): string {
+  convertDate1(dateString: string): string {
     if (/^\d+(\.\d+)?$/.test(dateString)) {
       const excelDate = parseFloat(dateString);
       const date = new Date((excelDate - 25569) * 86400 * 1000);

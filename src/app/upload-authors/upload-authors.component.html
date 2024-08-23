@@ -1,5 +1,5 @@
 <div class="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Upload Excel File</h2>
+    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Upload Excel File of Authors</h2>
 
     <form (submit)="onUpload()" class="space-y-4">
         <div>
@@ -14,7 +14,7 @@
         </button>
     </form>
 
-    <div *ngIf="bookData.length" class="mt-8">
+    <div *ngIf="authorData.length" class="mt-8">
         <h3 class="text-xl font-semibold mb-4 text-gray-800">Preview Data</h3>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 bg-white">
@@ -31,7 +31,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    <tr *ngFor="let row of bookData; let i = index" class="hover:bg-gray-50">
+                    <tr *ngFor="let row of authorData; let i = index" class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ i + 1 }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ row.authorName }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ row.authorEmail }}</td>

@@ -25,15 +25,42 @@ export class UploadBooksComponent {
 
       const data = <any[][]>XLSX.utils.sheet_to_json(ws, { header: 1 });
 
-      this.bookData = data.slice(1).map(row => ({
-        bookName: row[0],
-        isbn: row[1],
-        authorId: row[2],
-      }));
-      console.log(data);
+      const errors: string[] = [];
 
+      this.bookData = data.slice(1).map((row, index) => {
+        const bookName = row[0];
+        const isbn = row[1];
+        const authorId = row[2];
+
+        if (!bookName || !isbn || !authorId) {
+          errors.push(`Row ${index + 2}: Missing data for bookName, isbn, or authorId`);
+        }
+
+        if (!this.isValidISBN(isbn)) {
+          errors.push(`Row ${index + 2}: Invalid ISBN format (${isbn})`);
+        }
+
+        return {
+          bookName: bookName,
+          isbn: isbn,
+          authorId: authorId
+        };
+      });
+
+      if (errors.length > 0) {
+        this.bookData = [];
+        console.error('Validation Errors:', errors);
+        alert('Validation Errors:\n' + errors.join('\n'));
+      } else {
+        console.log('Valid data:', this.bookData);
+      }
     };
     reader.readAsBinaryString(target.files[0]);
+  }
+
+  isValidISBN(isbn: string): boolean {
+    const isbnPattern = /^(97(8|9))?\d{9}(\d|X)$/;
+    return isbnPattern.test(isbn);
   }
 
   onUpload() {
